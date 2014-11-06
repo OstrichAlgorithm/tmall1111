@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script type="text/javascript" src="jquery-1.8.3.min.js" ></script>
+	</head>
+	<style>
+		/*#table{
+			overflow: scroll;
+			border-width: medium;
+			
+		}*/
+		/*#view{
+			
+			position: fixed;
+			top: 0;
+			
+		}*/
+		.fcous{
+			
+			color: #FF0000;
+		}	
+		
+	</style>
+	<body>
+		<div id="view">
+			<button value="开始" onclick="start()">开始</button>
+		    <button value="停止" onclick="stop()" >停止</button>	
+		    <button id="timer">当前时间: 监控未开</button>  
+		    <button id="winner">上次1111时间: </button>  
+		</div>  
+	    <table id="table"></table>
+	     <!-- <table id="winner">1000</table>-->
+	<script type="text/javascript">
+        var more = 0;
+        function start() {
+            postAward();
+            int = self.setInterval("postAward()", 1000);
+            showTime();
+            int2 = self.setInterval("showTime()", 1000);
+        }
+        function stop() {
+            clearInterval(int);
+            clearInterval(int2);
+        }
+
+
+		
+	
+         function postAward() {
+            $.ajax({
+                url: "https://hi.alipay.com/query/winner_c.json?campFlag=AWX%2BGunqCChuxuWgasjM58Hb5hPq4kFm&_callback=getData",
+                type: 'GET',
+                async: true,
+                dataType: 'jsonp',
+                jsonpCallback: 'getData',
+                success: function(data){  
+                    console.log("success");
+                },  
+                error: function(e){  
+                    console.log("error");
+                } 
+            });
+        }
+
+
+        function getData(data) {
+            var s = '';
+            more=0;
+            $(data.winners) .each(function (i, item) {
+                s += '<tr>';    
+                var num = parseInt(getNum(item.prizeName),10);
+              if( num>99){
+              	 s += '<td class="fcous">';
+              	
+              	 more++;
+              	  if (num>1000) {
+              	 	 $("#winner").html('上次1111时间:'+getTime());
+              	 }
+              }else{
+              	 s += '<td>';   
+              }
+                s += item.prizeName;
+                s += '</td>';
+                s += '<td>';
+                s += item.userName;
+                s += '</td>';
+//              s += '<td>';
+//              s += getTime();
+//              s += '</td>';
+                s += '</tr>'; 
+                
+                
+                
+            });
+            $("#table").html(s);
+           // $('html, body').animate({scrollTop: $(document).height()},3000); 
+        }
+
+		function getTime(){
+			var d = new Date();
+			var str = '';
+			 str += d.getFullYear()+'.';
+			 str  += d.getMonth() + 1+'.';
+			 str  += d.getDate()+' ';
+			 str += d.getHours()+':'; 
+			 str  += d.getMinutes()+':'; 
+			str+= d.getSeconds(); 
+			return str;
+		}
+		
+		function getNum(str){
+			var reg = /[\u4e00-\u9fa5]+/g;
+			var ret = str.replace( reg , escape("") ) ;
+			return ret;
+		}
+
+         function showTime(){
+            $("#timer").html("当前时间: "+getTime());
+         }
+         function tip(){
+              if(more >= 1){
+                  alert("有100以上的红包出现");
+                  setTimeout("tip()", 120000);
+              } else{        
+                  setTimeout("tip()", 1000);
+              }
+        }
+        setTimeout(tip, 1000);
+
+    </script>
+</html>
